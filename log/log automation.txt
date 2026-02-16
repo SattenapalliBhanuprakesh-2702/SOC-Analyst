@@ -1,0 +1,69 @@
+# in powershell
+# for application logs :
+# -----------------------------------------------------------------
+# Instead of clicking UI, use :
+
+#     Get-WinEvent -LogName Application -MaxEvents 100
+# -----------------------------------------------------------------
+# Filter Crash Events (Event ID 1000) : 
+
+#     Get-WinEvent -FilterHashtable @{
+#         LogName='Application'
+#         Id=1000
+#     }
+# ---------------------------------------------------------------------
+# Filter Last 24 Hours
+    # $StartTime = (Get-Date).AddDays(-1)
+
+    # Get-WinEvent -FilterHashtable @{
+    #     LogName='Application'
+    #     Id=1000
+    #     StartTime=$StartTime
+    # }
+# -----------------------------------------------------------------------  
+# Detect Suspicious Execution Paths
+
+# Malware often crashes from:
+
+# C:\Users\Public\
+
+# AppData\
+
+# Temp\
+
+# Example automation:
+
+# Get-WinEvent -FilterHashtable @{LogName='Application'; Id=1000} |
+# Where-Object {
+#     $_.Message -match "AppData|Temp|Users\\Public"
+# }
+
+# -----------------------------------------------------------------------
+# Continuous Monitoring with Scheduled Task
+
+# Create scheduled task that runs script every 5 minutes:
+#     $events = Get-WinEvent -FilterHashtable @{
+#         LogName='Application'
+#         Id=1000
+#         StartTime=(Get-Date).AddMinutes(-5)
+#     }
+
+#     if ($events) {
+#         Send-MailMessage ...
+#     }
+# ---------------------------------------------------------------------
+# Build a Crash Baseline Model
+
+# Advanced automation:
+
+# Count normal daily crash volume.
+
+# Create threshold rule:
+
+# If crash count > 3x baseline → alert
+
+# PowerShell example:
+
+#     (Get-WinEvent -FilterHashtable @{LogName='Application'; Id=1000} | Group-Object MachineName).Count
+
+# -----------------------------------------------------------------
